@@ -75,7 +75,7 @@ const DELETE =
 let anchorsDone = false;
 
 function log(msg) {
-  console.log(`[flaxeon-bridge] ${msg}`);
+  console.warn(`[flaxeon-bridge] ${msg}`);
 }
 
 function dsn() {
@@ -137,7 +137,11 @@ export function describe(wish) {
 /** ops: [["save", key, value] | ["delete", key]] in order. */
 async function apply(ops) {
   const url = dsn();
-  if (!url || !ops.length) return false;
+  if (!ops.length) return false;
+  if (!url) {
+    log("FLAXEON_NEON_URL is not set; skipping sync");
+    return false;
+  }
   try {
     if (!anchorsDone) {
       for (const [cat, key, value] of ANCHORS) await runSql(url, INSERT_IF_MISSING, [cat, key, value]);
